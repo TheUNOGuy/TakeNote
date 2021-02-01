@@ -1,0 +1,2 @@
+This version of TakeNotes has been discontinued with the release of v1.3. Contributions to this version will no longer be accepted but other versions are still 
+contributable.
