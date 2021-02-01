@@ -4,6 +4,7 @@ import string
 from os.path import join as jon
 from pathlib import Path        
 from ast import literal_eval
+from re import escape
 
 an = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'
 
@@ -97,3 +98,27 @@ def decrypt ( result, pin ):
         counter = counter + 1
 
     return text
+
+def getFileName ( path ):
+
+    path = escape ( path )
+    path = path.replace ( "\\", "//" )
+    path = path[::-1]
+    file = ""
+    counter = 0
+    checking = 0
+
+    for i in range ( len ( path ) ):
+
+        check = str ( path[counter] + path[counter+1] )
+
+        if check == "//":
+            if checking == 2:
+                file = file.replace ( "/", "" )
+                return file[::-1]
+            checking = checking + 1
+
+        else:
+            file = file + path[counter]
+
+        counter = counter + 1

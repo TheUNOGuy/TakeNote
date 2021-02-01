@@ -1,15 +1,18 @@
-Help Document - TakeNotes v1.2
 
-All types of help are given here; If you have any other questions, please ask here - https://github.com/TheUNOGuy/TakeNotes/discussions/categories/questions
+Help Document - TakeNotes v1.3
 
-The menubar has 4 headers - File, Edit, Encryption, Extra and Help.
+All help is given here; If you have any other questions, please ask here - https://github.com/TheUNOGuy/TakeNotes/discussions/categories/questions
+
+The menubar has 5 headers - File, Edit, Encryption, View and Help.
 
 In File we have different options:
 
 New - Creates a new .txt file. But dont forget to use Save As after creating it if you want to save it!
 Save - Saves the file.
 Save As - Creates a new file with a different name but with the same content. Creates a new file with a new name if file is New.
-Open - Opens a file.\nQuit - Closes the applictaion.
+Open - Opens a file.\nQuit - Closes the application.
+Convert to PDF - Converts the opened file to a PDF in a dezired location.
+Force Quit - Force Quits the application.
 
 In Edit we have these options:
 
@@ -18,36 +21,40 @@ Copy - Copies the seletcted text to clipboard.
 Paste - Pastes whatever is copied to the clipboard.
 Undo - Undos a certain action\nDelete - Deletes the selected text.
 Select All - Selects all text in the editor.
+Replace - Replaces a certain text in the document with other text.
 Insert Date/Time - Inserts the current date and time into the document.
 
 In Encryption we have 4 options ( Note: Read Encryption Info for more info! ):
 
-Encryption Info - Opens a document with a detailed explanation of encryption. Please read this before encrypting.
-
-Encrypt file - Encrypts the open file and returns the decryption pin.
+Encryption Info - Opens a document with a detailed explanation of encryption. Please read this before encrypting. 
+Encrypt file - Encrypts the open file and returns the decryption pin. 
 Decrypt file - If given the correct pin, it decrypts the open file.
-Forgot pin - Use this if you forgot your pin and only if the document is really important! Spam will not be appriciated!
+Forgot pin - Use this if you forgot your pin and only if the document is really important! Spam will not be appriciated! 
 
-In Extra we have only one option:
+In View we have 4 options:
 
 Font - Opens up the font editor. The font selection is only temporary. Also, everything works except the color selection.
 We would like to make improvements in Future updates.
+Word wrap - Words wraps the text by removing the horizontal scrollbar ( Changes are permenantly saved ).
+Dark theme - Changes the editor theme to a dark background and white text ( Changes are permenantly saved ).
 
-In Help we have three options:
+In Help we have 5 options:
 
 Help - Opens this file in your defualt text editor.
 Reprt Issue - Use this if you found a bug or major issue.
-About Takenotes - About the applictaion.
+TakeNotes Forum - Redirects you to the TakeNotes repository discussions page.
+Send Feedback - Send feedback by writing in the thread.
+About TakeNotes - About the applictaion.
 
-FREQUENTLY ASKED QUESTIONS -
+FREQUENTLY ASKED QUESTIONS - 
 
 1. How do I set TakeNotes as my default text editor?
 
-Answer: Right click on a TXT file and a list will appear. Now, select open with and choose Use default program.... There scroll down and choose
-TakeNotes.exe. Thats it! If this option does not appear in the list, scroll down and choose Look for another app on this PC. Now paste this in
+Answer: Right click on a TXT file and a list will appear. Now, select open with and choose Use default program.... There scroll down and choose 
+TakeNotes.exe. Thats it! If this option does not appear in the list, scroll down and choose Look for another app on this PC. Now paste this in 
 path dialog box - C:\\TakeNotes\\TakeNotes.exe
 
 2. Can we build our own version of TakeNotes?
 
-Answer: Obviously you can! Thats why TakeNotes is opensouce - https://github.com/TheUNOGuy/TakeNotes. If you build a new succesful version you can submit a pull request on GitHub and you can become a TakeNotes contributor!
+Answer: Obviously you can! Thats why TakeNotes is opensouce - https://github.com/TheUNOGuy/TakeNotes. If you build a new succesful version you can submit a pull request on GitHub and you can become a TakeNotes contributor! 
 All of the features have been explained above. If you have any other questions or want to contact me personally - aadharshvenkat06@gmail.com

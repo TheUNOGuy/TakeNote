@@ -1,5 +1,5 @@
 
-print ( "TakeNotes Installer v1.2" )
+print ( "TakeNotes Installer v1.3" )
 print ( "------------------------" )
 print ( "The time for this process is based on your computer's speed and internet" )
 print ( "Started...\n" )
@@ -7,7 +7,7 @@ print ( "------------------------" )
 
 from google_drive_downloader import GoogleDriveDownloader as g
 
-g.download_file_from_google_drive ( file_id = '1k9upI6RXPihFHUGfJOlt4-aFpTMZHCa1', dest_path = 'C:\TakeNotes\TakeNotes_zip.zip', unzip = True )
+g.download_file_from_google_drive ( file_id = '1dkUGabldOXeunmw747fr17pwNeSmiO_f', dest_path = 'C:\TakeNotes\TakeNotes_zip.zip', unzip = True )
 
 from os import remove
 from os.path import exists

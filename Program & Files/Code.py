@@ -14,16 +14,54 @@ from encrypt import *
 from sys import argv
 from pyautogui import hotkey
 from datetime import datetime
+from dataclasses import dataclass
+import threading
+from keyboard import is_pressed
+from time import sleep
+from re import escape
+from ast import literal_eval
+from webbrowser import open as web
 
-pathname = ''
+@dataclass
+class storage:
+
+    pathname: str
+
+store = storage ( "" )
+
+saveText = ''
+wrap = ''
+
+def wordWrapCheck():
+
+    with open ( 'C:\TakeNotes\Files\Storage.txt', 'r+' ) as f:
+
+        l = f.read()
+        l = list ( literal_eval ( l ) )
+
+        if l[1] == '1':
+            return 1
+
+        if l[1] == '0':
+            return 0
+    f.close()
+
+def fileName ( path ):
+
+    from os.path import split as slicing
+
+    h, file = slicing ( path )
+    return file + " - TakeNotes"
+
 
 def checkDarkTheme ( self ):
 
     with open ( 'C:\TakeNotes\Files\Storage.txt', 'r' ) as theme:
 
         checkTheme = theme.read()
+        checkTheme = list ( literal_eval ( checkTheme ) )
 
-        if checkTheme == '1':
+        if checkTheme[0] == '1':
 
             self.text_ctrl.SetBackgroundColour ( wx.BLACK )
             self.text_ctrl.SetForegroundColour ( wx.WHITE )
@@ -45,18 +83,18 @@ def writing ( self, path ):
         
 
 def resetPath():
+
+    global store
     
-    global pathname
-    
-    pathname = ''
+    store = storage ( "" )
 
-def deleteContent ( pfile ):
+def deleteContent ( file ):
 
-    pfile.seek ( 0 )
-    pfile.truncate()
-    pfile.seek ( 0 ) 
+    file.seek ( 0 )
+    file.truncate()
+    file.seek ( 0 ) 
 
-    return pfile
+    return file
 
 class MyFrame ( wx.Frame ):
     
@@ -67,8 +105,12 @@ class MyFrame ( wx.Frame ):
 
         self.SetIcon ( wx.Icon ( "C:\TakeNotes\Icon\Icon.png" ) )
         
-        sizer = wx.BoxSizer ( wx.VERTICAL ) 
-        self.text_ctrl = wx.TextCtrl ( panel, pos = ( 0, 0 ), style = wx.TE_MULTILINE | wx.HSCROLL | wx.TE_RICH )
+        sizer = wx.BoxSizer ( wx.VERTICAL )
+        n = wordWrapCheck()
+        if n == 1:
+            self.text_ctrl = wx.TextCtrl ( panel, pos = ( 0, 0 ), style = wx.TE_MULTILINE | wx.TE_CHARWRAP | wx.TE_RICH | wx.BORDER_NONE )
+        if n == 0:
+            self.text_ctrl = wx.TextCtrl ( panel, pos = ( 0, 0 ), style = wx.TE_MULTILINE | wx.TE_DONTWRAP | wx.TE_RICH | wx.BORDER_NONE )
         sizer.Add ( self.text_ctrl, 1, wx.ALL | wx.EXPAND, 1 )
 
         checkDarkTheme ( self )
@@ -88,52 +130,60 @@ class MyFrame ( wx.Frame ):
         
         menubar.Append ( fileMenu, '&File' )
         
-        m0 = fileMenu.Append ( wx.ID_NEW, 'New' )
+        m0 = fileMenu.Append ( wx.ID_NEW, 'New\tCtrl+N' )
         self.Bind ( wx.EVT_MENU, self.OnNew, m0 )
         
         fileMenu.AppendSeparator()
         
-        m1 = fileMenu.Append ( wx.ID_SAVE, 'Save' )
+        m1 = fileMenu.Append ( wx.ID_SAVE, 'Save\tCtrl+S' )
         self.Bind ( wx.EVT_MENU, self.OnSave, m1 )
         
         m4 = fileMenu.Append ( wx.ID_SAVEAS, 'Save as...' )
         self.Bind ( wx.EVT_MENU, self.OnSaveAs, m4 )
         
-        m3 = fileMenu.Append ( wx.ID_OPEN, 'Open...' )
+        m3 = fileMenu.Append ( wx.ID_OPEN, 'Open...\tCtrl+O' )
         self.Bind ( wx.EVT_MENU, self.OnOpen, m3 )
+
+        fileMenu.AppendSeparator()
+
+        m5 = fileMenu.Append ( wx.ID_ANY, 'Convert to PDF\tCtrl+P' )
+        self.Bind ( wx.EVT_MENU, self.OnPDF, m5 )
         
         fileMenu.AppendSeparator()
         
-        m2 = fileMenu.Append ( wx.ID_EXIT, 'Quit' )
+        m2 = fileMenu.Append ( wx.ID_EXIT, 'Force Quit' )
         self.Bind ( wx.EVT_MENU, self.OnQuit, m2 )
         self.Bind ( wx.EVT_CLOSE, self.OnExit )
         
         editMenu = wx.Menu()
         menubar.Append ( editMenu, '&Edit' )
         
-        c1 = editMenu.Append ( wx.ID_CUT, 'Cut' )
+        c1 = editMenu.Append ( wx.ID_CUT, 'Cut\tCtrl+X' )
         self.Bind ( wx.EVT_MENU, self.OnCut, c1 )
         
-        c2 = editMenu.Append ( wx.ID_COPY, 'Copy' )
+        c2 = editMenu.Append ( wx.ID_COPY, 'Copy\tCtrl+C' )
         self.Bind ( wx.EVT_MENU, self.OnCopy, c2 )
         
-        c3 = editMenu.Append ( wx.ID_PASTE, 'Paste' )
+        c3 = editMenu.Append ( wx.ID_PASTE, 'Paste\tCtrl+V' )
         self.Bind ( wx.EVT_MENU, self.OnPaste, c3 )
         
         editMenu.AppendSeparator()
         
-        e1 = editMenu.Append ( wx.ID_UNDO, 'Undo' )
+        e1 = editMenu.Append ( wx.ID_UNDO, 'Undo\tCtrl+Z' )
         self.Bind ( wx.EVT_MENU, self.OnUndo, e1 )
         
-        e3 = editMenu.Append ( wx.ID_DELETE, 'Delete' )
+        e3 = editMenu.Append ( wx.ID_DELETE, 'Delete\tDel' )
         self.Bind ( wx.EVT_MENU, self.OnDelete, e3 )
         
-        e2 = editMenu.Append ( wx.ID_SELECTALL, 'Select All' )
+        e2 = editMenu.Append ( wx.ID_SELECTALL, 'Select All\tCtrl+A' )
         self.Bind ( wx.EVT_MENU, self.OnSelectAll, e2 )
 
         editMenu.AppendSeparator()
 
-        e4 = editMenu.Append ( wx.ID_ANY, 'Insert Date/Time' )
+        rep = editMenu.Append ( wx.ID_REPLACE, 'Replace...\tCtrl+H' )
+        self.Bind ( wx.EVT_MENU, self.OnReplace, rep )
+
+        e4 = editMenu.Append ( wx.ID_ANY, 'Insert Date/Time\tF5' )
         self.Bind ( wx.EVT_MENU, self.onGetTime, e4 )
 
         enMenu = wx.Menu()
@@ -144,10 +194,10 @@ class MyFrame ( wx.Frame ):
 
         enMenu.AppendSeparator()
 
-        en2 = enMenu.Append ( wx.ID_ANY, 'Encrypt file' )
+        en2 = enMenu.Append ( wx.ID_ANY, 'Encrypt file\tCtrl+E' )
         self.Bind ( wx.EVT_MENU, self.OnEncrypt, en2 )
 
-        en3 = enMenu.Append ( wx.ID_ANY, 'Decrypt file' )
+        en3 = enMenu.Append ( wx.ID_ANY, 'Decrypt file\tCtrl+D' )
         self.Bind ( wx.EVT_MENU, self.OnDecrypt, en3 )
 
         enMenu.AppendSeparator()
@@ -161,22 +211,42 @@ class MyFrame ( wx.Frame ):
         f1 = viewMenu.Append ( wx.ID_ANY, 'Font' )
         self.Bind ( wx.EVT_MENU, self.OnFont, f1 )
 
+        f4 = viewMenu.Append ( wx.ID_ANY, 'Word wrap...', kind = wx.ITEM_CHECK )
+        self.Bind ( wx.EVT_MENU, self.OnWrap, f4 )
+        if n == 1:
+            f4.Check()
+
         viewMenu.AppendSeparator()
 
-        f2 = viewMenu.Append ( wx.ID_ANY, 'Light theme' )
-        self.Bind ( wx.EVT_MENU, self.OnLightTheme, f2 )
+        f3 = viewMenu.Append ( wx.ID_ANY, 'Dark theme\tCtrl+T', kind = wx.ITEM_CHECK )
+        self.Bind ( wx.EVT_MENU, self.OnTheme, f3 )
+        
+        with open ( 'C:\TakeNotes\Files\Storage.txt', 'r' ) as theme:
 
-        f3 = viewMenu.Append ( wx.ID_ANY, 'Dark theme' )
-        self.Bind ( wx.EVT_MENU, self.OnDarkTheme, f3 )
+            checkTheme = theme.read()
+            checkTheme = list ( literal_eval ( checkTheme ) )
+
+            if checkTheme[0] == '1':
+                f3.Check()
+
+            theme.close()
 
         helpMenu = wx.Menu()
         menubar.Append ( helpMenu, '&Help' )
 
-        h1 = helpMenu.Append ( wx.ID_HELP, 'Help' )
+        h1 = helpMenu.Append ( wx.ID_HELP, 'Help\tF1' )
         self.Bind ( wx.EVT_MENU, self.OnHelp, h1 )
+
+        helpMenu.AppendSeparator()
 
         h3 = helpMenu.Append ( wx.ID_ANY, 'Report issue' )
         self.Bind ( wx.EVT_MENU, self.OnReport, h3 )
+
+        h4 = helpMenu.Append ( wx.ID_ANY, 'TakeNotes Forum' )
+        self.Bind ( wx.EVT_MENU, self.OnForum, h4 )
+
+        h5 = helpMenu.Append ( wx.ID_ANY, 'Send Feedback' )
+        self.Bind ( wx.EVT_MENU, self.OnFeedback, h5 )
 
         helpMenu.AppendSeparator()
         
@@ -189,66 +259,170 @@ class MyFrame ( wx.Frame ):
 
         if len ( argv ) == 2:
 
-            global pathname
-            pathname = argv[1]
+            global store
+            store = storage ( argv[1] )
 
-            if '.txt' in pathname:
+            if '.txt' in store.pathname:
 
-                with open ( pathname, 'r' ) as f:
+                with open ( store.pathname, 'r' ) as f:
                 
                     self.text_ctrl.WriteText ( f.read() )
                     self.text_ctrl.SetInsertionPoint ( 0 )
 
-                self.statusbar.SetStatusText ( addpath ( self, pathname ) )
+                    self.SetTitle ( fileName ( store.pathname ) )
+                    f.close()
+
+                self.statusbar.SetStatusText ( addpath ( self, store.pathname ) )
 
             else:
 
                 dialog = wx.MessageDialog ( None, 'File format not supported! Only .txt files supported!', 'Exclamation',
                              wx.OK | wx.ICON_EXCLAMATION )
 
-    def OnLightTheme ( self, event ):
+                dialog.ShowModal()
+
+    def OnPDF ( self, event ):
+
+        from fpdf import FPDF
+
+        global store
+            
+        pdf = FPDF()   
+        pdf.add_page()
+        
+        if store.pathname != "":
+            file = open ( store.pathname, 'r' )
+
+        else:
+            dialog = wx.MessageDialog ( None, 'Please open a saved file or save this file!', 'Exclamation',
+                             wx.OK | wx.ICON_EXCLAMATION )
+
+            dialog.ShowModal()
+            return
+
+        di = wx.TextEntryDialog ( self, 'Title for the PDF file ( Type * if you don\'t want a title )', 'Title' )
+
+        if di.ShowModal() == wx.ID_OK:
+            title = str ( di.GetValue() )
+
+        if title != '*':
+            pdf.set_font ( "Arial", 'B', size = 10 )
+            pdf.cell ( 200, 10, txt = title, ln = 1, align = 'A' )
+            
+        pdf.set_font ( "Arial", size = 10 )
+
+        with wx.FileDialog ( self, "Save PDF file", wildcard = "PDF files (*.pdf)|*.pdf",
+                       style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT ) as fileDialog:
+
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+
+            output = fileDialog.GetPath()
+
+        for i in file:
+            pdf.cell ( 200, 10, txt = i, ln = 2, align = 'A' )
+            
+        pdf.output ( output )
+        from os import startfile
+        startfile ( output )
+
+    def OnReplace ( self, event ):
+
+        import re
+        
+        d = wx.TextEntryDialog ( self, 'What should be replaced in the document?', 'Replace' ) 
+		
+        if d.ShowModal() == wx.ID_OK:
+
+            rep = d.GetValue()
+          
+            d2 = wx.TextEntryDialog ( self, '"{}" should be replaced by?'.format ( rep ), 'Replace' )
+
+            if d2.ShowModal() == wx.ID_OK:
+
+                rep2 = d2.GetValue()
+
+        text = re.compile ( re.escape ( rep ), re.IGNORECASE ) 
+        text = text.sub ( rep2, self.text_ctrl.GetValue() ) 
+        print ( text )
+        self.text_ctrl.Clear()
+        self.text_ctrl.WriteText ( str ( text ) )
+
+    def OnWrap ( self, event ):
 
         with open ( 'C:\TakeNotes\Files\Storage.txt', 'r+' ) as f:
 
-            if f.read() == '0':
-                pass
+            l = f.read()
+            l = list ( literal_eval ( l ) )
 
-            else:
+            if l[1] == '1':
 
-                deleteContent ( f )
-                f.write ( '0' )
+                wx.MessageBox ( 'Please restart TakeNotes for the changes to apply', 'Info', 
+                wx.OK | wx.ICON_INFORMATION )
+                l[1] = '0'
 
+            elif l[1] == '0':
+
+                wx.MessageBox ( 'Please restart TakeNotes for the changes to apply', 'Info', 
+                wx.OK | wx.ICON_INFORMATION )
+                l[1] = '1'
+        
+            deleteContent ( f )
+            f.write ( str ( l ) )
+
+        f.close()
+
+    def OnForum ( self, event ):
+
+        web ( 'https://github.com/TheUNOGuy/TakeNotes/discussions' )
+
+    def OnFeedback ( self, event ):
+
+        web ( 'https://github.com/TheUNOGuy/TakeNotes/discussions/5' )
+
+    def OnTheme ( self, event ):
+
+        with open ( 'C:\TakeNotes\Files\Storage.txt', 'r+' ) as f:
+
+            l = f.read()
+            l = list ( literal_eval ( l ) )
+            l[0] = str ( l[0] )
+
+            if l[0] == '1':
+                
                 self.text_ctrl.SetBackgroundColour ( wx.WHITE )
                 self.text_ctrl.SetForegroundColour ( wx.BLACK )
-                
-            f.close()
-
-    def OnDarkTheme ( self, event ):
-
-        with open ( 'C:\TakeNotes\Files\Storage.txt', 'r+' ) as f:
-
-            if f.read() == '1':
-                pass
+                l[0] = '0'
 
             else:
 
-                deleteContent ( f )
-                f.write ( '1' )
-                
                 self.text_ctrl.SetBackgroundColour ( wx.BLACK )
                 self.text_ctrl.SetForegroundColour ( wx.WHITE )
+                l[0] = '1'
 
-            f.close()
-    
+            deleteContent ( f )
+            f.write ( str ( l ) )
+
+        f.close()
+
     def OnForgot ( self, event ):
-
-        from webbrowser import open as web
 
         web ( 'mailto:aadharshvenkat06@gmail.com?subject=Forgot Decrypt Pin&body=Describe your problem' )
 
     def OnEncrypt ( self, event ):
 
-        if pathname != "":
+        dialog = wx.MessageDialog ( None, 'This will encrypt your file and give a decyption pin. Do you want to continue?', 'Exclamation',
+        wx.YES_NO | wx.ICON_EXCLAMATION )
+
+        c = dialog.ShowModal()
+
+        if c == wx.ID_YES:
+            pass
+
+        else:
+            return
+
+        if store.pathname != "":
 
             from time import sleep
 
@@ -258,12 +432,15 @@ class MyFrame ( wx.Frame ):
             self.text_ctrl.Clear()
 
             self.text_ctrl.WriteText ( str ( result ) )
-            writing ( self, pathname )
+            writing ( self, store.pathname )
 
-            pin = str ( 'IMPORTANT Decryption pin: ' + pin )
+            pin = str ( 'IMPORTANT! Decryption pin: ' + pin )
 
             wx.MessageBox ( pin, 'Info', 
             wx.OK | wx.ICON_INFORMATION )
+
+            global saveText
+            saveText = self.text_ctrl.GetValue()
 
         else:
 
@@ -304,7 +481,7 @@ class MyFrame ( wx.Frame ):
 
         from webbrowser import open as web
 
-        web ( 'https://github.com/TheUNOGuy/TakeNotes/issues/1' )
+        web ( 'https://github.com/TheUNOGuy/TakeNotes/issues/3' )
 
     def OnFont ( self, event ):
 
@@ -315,7 +492,7 @@ class MyFrame ( wx.Frame ):
             data = dlg.GetFontData() 
             font = data.GetChosenFont() 
             self.text_ctrl.SetFont ( font )
-			
+            
         dlg.Destroy()
     
     def OnAboutBox ( self, event ):
@@ -329,7 +506,7 @@ class MyFrame ( wx.Frame ):
 
         info.SetIcon ( wx.Icon ( 'C:\TakeNotes\Icon\Icon.png', wx.BITMAP_TYPE_PNG ) )
         info.SetName ( 'TakeNotes' )
-        info.SetVersion ( 'v1.2' )
+        info.SetVersion ( 'v1.3' )
         info.SetDescription ( description )
         info.SetCopyright ( '(C) 2021 TheUNOGuy' )
         info.SetWebSite( 'https://github.com/TheUNOGuy/TakeNotes' )
@@ -356,113 +533,121 @@ class MyFrame ( wx.Frame ):
         self.text_ctrl.WriteText ( s )
 
     def OnOpen ( self, event ):
+
+        global store
         
         with wx.FileDialog ( self, "Open TXT file", wildcard = "TXT files (*.txt)|*.txt",
                        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST ) as fileDialog:
         
             if fileDialog.ShowModal() == wx.ID_CANCEL:
-                return   
-            
-            global pathname
+                return
 
             self.text_ctrl.Clear()
+
+            store = storage ( fileDialog.GetPath() )
             
-            pathname = fileDialog.GetPath() 
-            
-            with open ( pathname, 'r' ) as f:
+            with open ( store.pathname, 'r' ) as f:
                 
                 self.text_ctrl.WriteText ( f.read().replace ( "'", "" ) )
                 self.text_ctrl.SetInsertionPoint ( 0 )
+                self.SetTitle ( fileName ( store.pathname ) )
+                global saveText
+                saveText = self.text_ctrl.GetValue()
             
             f.close()
-            self.statusbar.SetStatusText ( addpath ( self, pathname ) )
+            self.statusbar.SetStatusText ( addpath ( self, store.pathname ) )
                 
     def OnSave ( self, event ):
+
+        global store
         
         try:
-            writing ( self, pathname )
+            writing ( self, store.pathname )
+
+            global saveText
+            saveText = self.text_ctrl.GetValue()
         
         except:
             
             self.OnSaveAs ( self )
     
     def OnSaveAs ( self, event ):
+
+        global store
         
         with wx.FileDialog ( self, "Save TXT file", wildcard = "TXT files (*.txt)|*.txt",
                        style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT ) as fileDialog:
 
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 
-                return     
+                return
             
-            global pathname
-
-            pathname = fileDialog.GetPath()
+            store = storage ( fileDialog.GetPath() )
             
-            fi = open ( pathname, 'w' )
+            fi = open ( store.pathname, 'w' )
             fi.close()
             
-            writing ( self, pathname )
-        self.statusbar.SetStatusText ( addpath ( self, pathname ) )
-    
+            writing ( self, store.pathname )
+            
+        self.statusbar.SetStatusText ( addpath ( self, store.pathname ) )
+        self.SetTitle ( fileName ( store.pathname ) )
+        global saveText
+        saveText = self.text_ctrl.GetValue()
+        
     def OnNew ( self, event ):
+
+        global store
+        
+        global saveText
+        if saveText != self.text_ctrl.GetValue():
             
-        dial = wx.MessageDialog ( None, 'Do you want to save?', 'Question',
-        wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION )
+            dial = wx.MessageDialog ( None, 'Do you want to save?', 'Question',
+            wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION )
             
-        choice = dial.ShowModal()
+            choice = dial.ShowModal()
             
-        if choice == wx.ID_YES:
+            if choice == wx.ID_YES:
             
-            if pathname == '':
+                if store.pathname == '':
+                    self.OnSaveAs ( self )
                 
-                self.OnSaveAs ( self )
-                
-            else:
-                writing ( self, pathname )
+                else:
+                    writing ( self, store.pathname )
             
-        if choice == wx.ID_CANCEL:
-            return
+            if choice == wx.ID_CANCEL:
+                return
         
         self.text_ctrl.Clear()
-        
+        self.statusbar.SetStatusText ( "" )
         resetPath()
-    
-    def OnQuit ( self, event ):
 
+    def OnQuit ( self, event ):
         self.Close()
     
     def OnCut ( self, event ):
-        
-        hotkey ( 'ctrl', 'x' )
-        
-        hotkey ( 'ctrl', 'x' )
+        hotkey ( 'ctrl', 'x' )        
     
     def OnCopy ( self, event ):
-        
         hotkey ( 'ctrl', 'c' )
     
     def OnPaste ( self, event ):
-        
         hotkey ( 'ctrl', 'v' )
     
     def OnUndo ( self, event ):
-        
         hotkey ( 'ctrl', 'z' )
     
     def OnSelectAll ( self, event ):
-        
         hotkey ( 'ctrl', 'a' )   
 
     def OnDelete ( self, event ):
-        
         hotkey ( 'delete' )
     
     def OnExit ( self, event ):
         
         if event.GetEventType() == wx.EVT_CLOSE.typeId:
-
-            if pathname == "" and self.text_ctrl.GetValue() == "":
+            
+            global saveText
+            if saveText == self.text_ctrl.GetValue():
                 pass
 
             else:
@@ -478,11 +663,9 @@ class MyFrame ( wx.Frame ):
                 elif choice == wx.ID_YES:
         
                     try:
-                    
-                        writing ( self, pathname )
+                        writing ( self, store.pathname )
         
                     except:
-            
                         self.OnSaveAs ( self )
                         return
             

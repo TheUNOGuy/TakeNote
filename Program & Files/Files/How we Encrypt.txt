@@ -1,5 +1,5 @@
 
-Encryption Info - TakeNotes v1.2
+Encryption Info - TakeNotes v1.3
 
 What is encryption?
 
@@ -28,7 +28,6 @@ How do I decrypt a file?
 
 Answer: Open the encrypted file. Then under the Encryption menu select 'Decrypt file'. Enter the decryption pin of the file. Your file will be decrypted!
 ------------------------------------------
-
 Note: The pin handed to you will be invalid after decrypting. If you want to encrypt your file again, repeat the process.
 ------------------------------------------
 
