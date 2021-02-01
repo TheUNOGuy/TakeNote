@@ -1,4 +1,6 @@
-# TakeNote
+# Note: This version has been discontinued but still can be downloaded. Check 'Discontinued.txt' for more info
+
+# TakeNotes
 A free text editor for windows with a varitey of options more than Notepad made using Python. Different branches for different versions and anyone can contribute!
 
 # Using the application
